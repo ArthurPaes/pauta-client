@@ -18,13 +18,13 @@ This project was made using node version v20.19.3
 - Clone this repo to your local machine using:
 
 ```shell
-$ git clone https://github.com/ArthurPaes/votacao-front.git
+$ git clone https://github.com/ArthurPaes/pauta-client.git
 ```
 
 - Enter the folder:
 
 ```shell
-$ cd votacao-front
+$ cd pauta-client
 ```
 
 - Install dependencies:
