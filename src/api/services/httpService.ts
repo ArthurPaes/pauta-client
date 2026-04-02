@@ -27,11 +27,10 @@ class HttpService {
       const response = await fetch(`${API_URL}${path}`, config);
       
       if (!response.ok) {
-        if (response.status === 401) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401 && window.location.pathname !== '/login') {
           window.location.href = '/login';
-          return;
         }
-        const errorData = await response.json();
         throw new Error(errorData.message || 'HTTP error! status: ' + response.status);
       }
 
