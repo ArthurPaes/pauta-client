@@ -1,8 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import './index.css'
-import App from './App'
-import { SnackbarProvider } from './hooks/useSnackbar.tsx'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import { SnackbarProvider } from './hooks/useSnackbar';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -10,4 +10,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <App />
     </SnackbarProvider>
   </React.StrictMode>,
-)
+);
