@@ -2,6 +2,7 @@ export interface ICreateSectionRequest {
   name: string;
   description: string;
   expiration: number;
+  userId: number;
 }
 
 export interface ICreateSectionResponse {
@@ -9,19 +10,31 @@ export interface ICreateSectionResponse {
   name: string;
   description: string;
   expiration: number;
-  start_at: string;
-  expired: boolean;
+  startAt: string;
+  ownerId: number | null;
 }
 
 export interface IGetAllSectionsResponse {
-  start_at: string;
+  id: number;
+  name: string;
+  description: string;
+  expiration: number;
+  startAt: string;
   totalVotes: number;
   votesTrue: number;
   votesFalse: number;
   hasVoted: boolean;
-  name: string;
-  id: number;
-  description: string;
-  expiration: number;
   isExpired: boolean;
-} 
+  ownerId: number | null;
+  allowedUsers: number[];
+}
+
+export interface IUpdateSectionRequest {
+  name?: string;
+  description?: string;
+  expiration?: number;
+}
+
+export interface ISectionUsersRequest {
+  userIds: number[];
+}

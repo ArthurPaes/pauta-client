@@ -9,10 +9,12 @@ export { API_URL } from './constants';
 
 // API Interfaces
 export type { IRequestLogin, IResponseLogin } from './interfaces/auth';
-export type { ICreateUserRequest } from './interfaces/user';
-export type { 
-  ICreateSectionRequest, 
-  ICreateSectionResponse, 
-  IGetAllSectionsResponse 
+export type { ICreateUserRequest, IUserResponse } from './interfaces/user';
+export type {
+  ICreateSectionRequest,
+  ICreateSectionResponse,
+  IGetAllSectionsResponse,
+  IUpdateSectionRequest,
+  ISectionUsersRequest,
 } from './interfaces/section';
-export type { IVoteBody } from './interfaces/vote'; 
+export type { IVoteBody } from './interfaces/vote';
