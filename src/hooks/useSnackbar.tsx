@@ -1,83 +1,77 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Snackbar } from '@mui/material';
-import MuiAlert, { type AlertColor } from '@mui/material/Alert';
+import Icon, { type IconName } from '../components/Icon';
 
-interface SnackbarState {
-    open: boolean;
-    message: string;
-    severity: AlertColor;
+type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+interface Toast {
+  id: number;
+  msg: string;
+  type: ToastType;
 }
 
 interface SnackbarContextType {
-    showSnackbar: (message: string, severity?: AlertColor) => void;
-    showSuccess: (message: string) => void;
-    showError: (message: string) => void;
-    showWarning: (message: string) => void;
-    showInfo: (message: string) => void;
+  showSuccess: (message: string) => void;
+  showError: (message: string) => void;
+  showWarning: (message: string) => void;
+  showInfo: (message: string) => void;
 }
 
 const SnackbarContext = createContext<SnackbarContextType | undefined>(undefined);
 
-const Alert = React.forwardRef<HTMLDivElement, any>(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-});
-
-interface SnackbarProviderProps {
-    children: ReactNode;
-}
-
-export const SnackbarProvider: React.FC<SnackbarProviderProps> = ({ children }) => {
-    const [snackbar, setSnackbar] = useState<SnackbarState>({
-        open: false,
-        message: '',
-        severity: 'success'
-    });
-
-    const showSnackbar = (message: string, severity: AlertColor = 'success') => {
-        setSnackbar({
-            open: true,
-            message,
-            severity
-        });
-    };
-
-    const hideSnackbar = () => {
-        setSnackbar(prev => ({
-            ...prev,
-            open: false
-        }));
-    };
-
-    const showSuccess = (message: string) => showSnackbar(message, 'success');
-    const showError = (message: string) => showSnackbar(message, 'error');
-    const showWarning = (message: string) => showSnackbar(message, 'warning');
-    const showInfo = (message: string) => showSnackbar(message, 'info');
-
-    const value = {
-        showSnackbar,
-        showSuccess,
-        showError,
-        showWarning,
-        showInfo
-    };
-
-    return (
-        <SnackbarContext.Provider value={value}>
-            {children}
-            <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={hideSnackbar}>
-                <Alert onClose={hideSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-                    {snackbar.message}
-                </Alert>
-            </Snackbar>
-        </SnackbarContext.Provider>
-    );
+const STYLE: Record<ToastType, { bg: string; icon: IconName }> = {
+  success: { bg: 'var(--green)',  icon: 'checkCirc' },
+  error:   { bg: 'var(--red)',    icon: 'x' },
+  warning: { bg: 'var(--amber)',  icon: 'alert' },
+  info:    { bg: 'var(--accent)', icon: 'info' },
 };
 
-export const useSnackbar = (): SnackbarContextType => {
-    const context = useContext(SnackbarContext);
-    if (context === undefined) {
-        throw new Error('useSnackbar must be used within a SnackbarProvider');
-    }
-    return context;
-}; 
+const removeToast = (id: number) =>
+  (prev: Toast[]) => prev.filter(t => t.id !== id);
+
+interface SnackbarProviderProps {
+  readonly children: ReactNode;
+}
+
+export function SnackbarProvider({ children }: SnackbarProviderProps) {
+  const [toasts, setToasts] = useState<Toast[]>([]);
+
+  const add = useCallback((msg: string, type: ToastType) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(removeToast(id)), 3800);
+  }, []);
+
+  const showSuccess = useCallback((m: string) => add(m, 'success'), [add]);
+  const showError   = useCallback((m: string) => add(m, 'error'),   [add]);
+  const showWarning = useCallback((m: string) => add(m, 'warning'), [add]);
+  const showInfo    = useCallback((m: string) => add(m, 'info'),    [add]);
+
+  const value = useMemo<SnackbarContextType>(
+    () => ({ showSuccess, showError, showWarning, showInfo }),
+    [showSuccess, showError, showWarning, showInfo],
+  );
+
+  return (
+    <SnackbarContext.Provider value={value}>
+      {children}
+      <div className="toast-stack">
+        {toasts.map(t => {
+          const s = STYLE[t.type];
+          return (
+            <div key={t.id} className="toast-item" style={{ background: s.bg }}>
+              <Icon name={s.icon} size={16} />
+              <span>{t.msg}</span>
+            </div>
+          );
+        })}
+      </div>
+    </SnackbarContext.Provider>
+  );
+}
+
+export function useSnackbar(): SnackbarContextType {
+  const ctx = useContext(SnackbarContext);
+  if (!ctx) throw new Error('useSnackbar must be used within a SnackbarProvider');
+  return ctx;
+}
